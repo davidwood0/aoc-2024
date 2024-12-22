@@ -27,6 +27,7 @@ func calcMultiply(inFile string) (int, error) {
 	r := bufio.NewReader(f)
 
 	result := 0;
+	doBool := true;
 
 	for {
 		line, err := r.ReadString('\n')
@@ -38,16 +39,23 @@ func calcMultiply(inFile string) (int, error) {
 		}
 
 		split := strings.Split(line, "mul(")
+		doBool = checkDo(split[0], doBool);
 
 		for _, v := range split {
-			// then split by )
-			split2 := strings.Split(v, ")")
+			if (doBool) {
 
-			if (len(split2)>0) {
-				// validate that int,int is all that is left, anything else, discard
-				result += extractVal(split2[0])
+				// then split by )
+				split2 := strings.Split(v, ")")
+
+				if (len(split2)>0) {
+					// validate that int,int is all that is left, anything else, discard
+					result += extractVal(split2[0])
+				}
 			}
+			doBool = checkDo(v, doBool);
+
 		}
+		
 
 		// break if we hit EOF
 		if err == io.EOF {
@@ -58,6 +66,22 @@ func calcMultiply(inFile string) (int, error) {
 	defer f.Close()
 
 	return result, nil;
+}
+
+func checkDo(line string, current bool) bool {
+
+	dont := strings.LastIndex(line, "don't()")
+	do := strings.LastIndex(line, "do()")
+
+	if (dont == -1 && do == -1) {
+		return current;
+	}
+
+	if (dont > -1 && do == -1) {
+		return false
+	}
+
+	return true;
 }
 
 func extractVal(line string) int {
