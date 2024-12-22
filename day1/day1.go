@@ -27,13 +27,42 @@ func main() {
 	defer outFile.Close()
 
 	result := 0;
+	
+	mapOfRight := make(map[int]int)
+	mapOfLeft := make(map[int]int)
+
+	similarityScore := 0;
+
 	for i := 0; i < len(sortLeft); i++ {
+
+		// pt2 - map of left and right items occurence
+		if (mapOfLeft[sortLeft[i]] != 0) {
+			mapOfLeft[sortLeft[i]]++;
+		} else {
+			mapOfLeft[sortLeft[i]] = 1;
+		}
+
+		if (mapOfRight[sortRight[i]] != 0) {
+			mapOfRight[sortRight[i]]++;
+		} else {
+			mapOfRight[sortRight[i]] = 1;
+		}
+
 		result += absDiff(sortLeft[i], sortRight[i])
 		fmt.Fprintln(outFile, sortLeft[i], "  ", sortRight[i], "   diff: ", absDiff(sortLeft[i], sortRight[i]))
 	}
+
+	for ind,v := range mapOfLeft {
+		// does it appear in right?
+		timesInRight := mapOfRight[ind];
+		timesInLeft := v;
+
+		similarityScore+=(ind*timesInLeft*timesInRight)
+	}
 	fmt.Fprintln(outFile, "total diff: ", result)
 
-	return
+	println("diff =", result)
+	println("sim score =", similarityScore)
 }
 
 func mergeSort(array []int) []int {
